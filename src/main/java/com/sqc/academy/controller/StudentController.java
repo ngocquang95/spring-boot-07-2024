@@ -1,5 +1,8 @@
 package com.sqc.academy.controller;
 
+import com.sqc.academy.dto.ApiResponse;
+import com.sqc.academy.exception.ApiException;
+import com.sqc.academy.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,29 +25,29 @@ public class StudentController {
             )
     );
 
-    // @RequestMapping(value = "/students", method = RequestMethod.GET)
     @GetMapping
-    public ResponseEntity<List<Student>> getStudents() {
-        return ResponseEntity.ok(students);
+    public ResponseEntity<ApiResponse<List<Student>>> getStudents() {
+        return ResponseEntity.ok(ApiResponse.<List<Student>>builder().data(students).build());
     }
 
-    // http://localhost:8080/students/4
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getByIdStudents(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<Student>> getByIdStudents(@PathVariable int id) {
         for (Student student : students) {
             if (student.getId() == id) {
-                // return ResponseEntity.status(HttpStatus.OK).body(student);
-                return ResponseEntity.ok(student);
+                return ResponseEntity.ok(
+                        ApiResponse.<Student>builder().data(student).build());
             }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        throw new ApiException(ErrorCode.STUDENT_NOT_EXIST);
     }
 
     @PostMapping
-    public ResponseEntity<Student> save(@RequestBody Student student) {
+    public ResponseEntity<ApiResponse<Student>> save(@RequestBody Student student) {
         student.setId((int) (Math.random() * 100000000));
         students.add(student);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(student);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.<Student>builder().data(student).build());
     }
 }
