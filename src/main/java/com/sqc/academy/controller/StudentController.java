@@ -22,8 +22,8 @@ public class StudentController {
     IStudentService studentService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Student>>> getStudents() {
-        return ResponseEntity.ok(ApiResponse.<List<Student>>builder().data(studentService.findAll()).build());
+    public ResponseEntity<ApiResponse<List<Student>>> getStudents(@RequestParam(defaultValue = "") String name) {
+        return ResponseEntity.ok(ApiResponse.<List<Student>>builder().data(studentService.findAll(name)).build());
     }
 
     @GetMapping("/{id}")

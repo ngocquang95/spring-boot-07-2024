@@ -5,7 +5,7 @@ import com.sqc.academy.entity.Student;
 import java.util.List;
 
 public interface IStudentService {
-    List<Student> findAll();
+    List<Student> findAll(String name);
 
     Student findById(Integer id);
 

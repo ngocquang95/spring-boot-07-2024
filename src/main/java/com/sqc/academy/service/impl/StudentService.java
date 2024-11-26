@@ -17,8 +17,8 @@ public class StudentService implements IStudentService {
     IStudentRepository studentRepository;
 
     @Override
-    public List<Student> findAll() {
-        return studentRepository.findAll();
+    public List<Student> findAll(String name) {
+        return studentRepository.findByAttr(name, 9.6, 9.7);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class StudentService implements IStudentService {
             return null;
         }
         // sendmail
-        return studentRepository.findById(id);
+        return studentRepository.findById(id).get();
     }
 
     @Override
