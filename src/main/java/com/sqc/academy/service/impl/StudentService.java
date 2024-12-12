@@ -6,6 +6,8 @@ import com.sqc.academy.service.IStudentService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +19,8 @@ public class StudentService implements IStudentService {
     IStudentRepository studentRepository;
 
     @Override
-    public List<Student> findAll(String name) {
-        return studentRepository.findByAttr(name, 9.6, 9.7);
+    public Page<Student> findAll(String name, Pageable pageable) {
+        return studentRepository.findByAttr(name, 9.6, 9.7, pageable);
     }
 
     @Override

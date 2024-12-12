@@ -1,18 +1,20 @@
 package com.sqc.academy.controller;
 
 import com.sqc.academy.dto.ApiResponse;
+import com.sqc.academy.dto.page.PageResponse;
+import com.sqc.academy.entity.Student;
 import com.sqc.academy.exception.ApiException;
 import com.sqc.academy.exception.ErrorCode;
-import com.sqc.academy.entity.Student;
 import com.sqc.academy.service.IStudentService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController // json
 @AllArgsConstructor // DI
@@ -22,8 +24,11 @@ public class StudentController {
     IStudentService studentService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Student>>> getStudents(@RequestParam(defaultValue = "") String name) {
-        return ResponseEntity.ok(ApiResponse.<List<Student>>builder().data(studentService.findAll(name)).build());
+    public ResponseEntity<ApiResponse<PageResponse<Student>>> getStudents(@RequestParam(defaultValue = "") String name,
+                                                                          @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.<PageResponse<Student>>builder()
+                .data(new PageResponse<>(studentService.findAll(name, pageable)))
+                .build());
     }
 
     @GetMapping("/{id}")
