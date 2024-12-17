@@ -2,9 +2,12 @@ package com.sqc.academy.controller;
 
 import com.sqc.academy.dto.ApiResponse;
 import com.sqc.academy.dto.page.PageResponse;
+import com.sqc.academy.dto.student.StudentRequest;
+import com.sqc.academy.dto.student.StudentResponse;
 import com.sqc.academy.entity.Student;
 import com.sqc.academy.exception.ApiException;
 import com.sqc.academy.exception.ErrorCode;
+import com.sqc.academy.mapper.IStudentMapper;
 import com.sqc.academy.service.IStudentService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,17 +25,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/students")
 public class StudentController {
     IStudentService studentService;
+    IStudentMapper studentMapper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<Student>>> getStudents(@RequestParam(defaultValue = "") String name,
+    public ResponseEntity<ApiResponse<PageResponse<StudentResponse>>> getStudents(@RequestParam(defaultValue = "") String name,
                                                                           @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.<PageResponse<Student>>builder()
-                .data(new PageResponse<>(studentService.findAll(name, pageable)))
+        return ResponseEntity.ok(ApiResponse.<PageResponse<StudentResponse>>builder()
+                .data(new PageResponse<>(studentService.findAll(name, pageable).map(studentMapper::studentToStudentResponse)))
                 .build());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Student>> getByIdStudents(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<StudentResponse>> getByIdStudents(@PathVariable int id) {
         Student student = studentService.findById(id);
 
         if (student == null) {
@@ -40,12 +44,14 @@ public class StudentController {
         }
 
         return ResponseEntity.ok(
-                ApiResponse.<Student>builder().data(student).build());
+                ApiResponse.<StudentResponse>builder().data(studentMapper.studentToStudentResponse(student)).build());
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Student>> save(@RequestBody Student student) {
+    public ResponseEntity<ApiResponse<StudentResponse>> save(@RequestBody StudentRequest studentRequest) {
+        Student student = studentMapper.studentRequestToStudent(studentRequest);
+        studentService.save(student);
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.<Student>builder().data(studentService.save(student)).build());
+                ApiResponse.<StudentResponse>builder().data(studentMapper.studentToStudentResponse(student)).build());
     }
 }
