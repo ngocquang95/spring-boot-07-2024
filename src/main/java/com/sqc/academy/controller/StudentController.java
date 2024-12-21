@@ -9,6 +9,7 @@ import com.sqc.academy.exception.ApiException;
 import com.sqc.academy.exception.ErrorCode;
 import com.sqc.academy.mapper.IStudentMapper;
 import com.sqc.academy.service.IStudentService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -48,7 +49,7 @@ public class StudentController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<StudentResponse>> save(@RequestBody StudentRequest studentRequest) {
+    public ResponseEntity<?> save(@Valid @RequestBody StudentRequest studentRequest) {
         Student student = studentMapper.studentRequestToStudent(studentRequest);
         studentService.save(student);
         return ResponseEntity.status(HttpStatus.CREATED).body(

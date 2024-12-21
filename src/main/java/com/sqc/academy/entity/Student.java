@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,4 +23,6 @@ public class Student {
     String address;
     @ManyToOne // khoa ngoai
     Clazz clazz;
+
+    LocalDate dateOfBirth;
 }
