@@ -25,6 +25,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Service
 @AllArgsConstructor
@@ -44,7 +45,7 @@ public class AuthenticationService implements IAuthenticationService {
         }
 
         return AuthenticationResponse.builder()
-                .token(generateToken(user.getUsername()))
+                .token(generateToken(user))
                 .build();
     }
 
@@ -56,20 +57,20 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     // Phương thức generateToken tạo ra một JWT token với thông tin người dùng
-    private String generateToken(String username) {
+    private String generateToken(User user) {
         // Tạo phần header cho JWT, sử dụng thuật toán ký là HS512 (HMAC SHA-512)
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         // Tạo phần claims (payload) cho JWT, chứa các thông tin về người dùng
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username) // Đặt chủ thể (subject) của JWT là tên đăng nhập của người dùng
+                .subject(user.getUsername()) // Đặt chủ thể (subject) của JWT là tên đăng nhập của người dùng
                 .issuer("sqc.com") // Đặt người phát hành JWT là "sqc.com"
                 .issueTime(new Date()) // Đặt thời gian phát hành JWT là thời điểm hiện tại
                 .expirationTime(new Date( // Đặt thời gian hết hạn cho JWT là 1 giờ kể từ lúc phát hành
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
+                        Instant.now().plus(20, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 // Thêm một custom claim (thông tin tùy chỉnh) vào JWT, chứa thông tin về đối tượng Student
-                .claim("student", "Thong tin sinh vien")
+                .claim("scope", getScope(user))
                 .build(); // Xây dựng đối tượng JWTClaimsSet
 
         // Tạo payload từ claims đã tạo, chuyển đối tượng claims thành định dạng JSON
@@ -88,6 +89,12 @@ public class AuthenticationService implements IAuthenticationService {
             // Nếu có lỗi xảy ra trong quá trình ký JWT, ném ra ngoại lệ RuntimeException
             throw new RuntimeException(e);
         }
+    }
+
+    private String getScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        user.getRoles().forEach(role -> stringJoiner.add(role.getName()));
+        return stringJoiner.toString();
     }
 
     // Phương thức verifyJWT kiểm tra tính hợp lệ của JWT token và xác thực nó
